@@ -8,8 +8,19 @@
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_TOOLCHAIN_FILE": "",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+            }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug configuration",
+            "description": "Configures a debug build using Unix Makefiles",
+            "inherits": "production",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
             }
         }
@@ -19,6 +30,59 @@
             "name": "build-production",
             "configurePreset": "production",
             "description": "Builds the project using the default configuration preset"
+        },
+        {
+            "name": "build-debug",
+            "configurePreset": "debug",
+            "description": "Builds the project using the debug configuration preset"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "test-production",
+            "configurePreset": "production",
+            "description": "Runs tests using the default configuration preset"
+        },
+        {
+            "name": "test-debug",
+            "configurePreset": "debug",
+            "description": "Runs tests using the debug configuration preset"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "workflow-production",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "production"
+                },
+                {
+                    "type": "build",
+                    "name": "build-production"
+                },
+                {
+                    "type": "test",
+                    "name": "test-production"
+                }
+            ]
+        },
+        {
+            "name": "workflow-debug",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "debug"
+                },
+                {
+                    "type": "build",
+                    "name": "build-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "test-debug"
+                }
+            ]
         }
     ]
 }
