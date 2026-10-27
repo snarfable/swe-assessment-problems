@@ -9,6 +9,8 @@
  * class will be defined in the corresponding source file (UInt32Consumer.cpp).
  */
 
+#pragma once
+
 #include <iostream>
 #include <iomanip>
 #include <string>
