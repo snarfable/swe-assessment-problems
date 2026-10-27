@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <vector>
 #include <queue>
 #include <jsoncpp/json/json.h>
 #include <spdlog/spdlog.h>
@@ -32,11 +34,23 @@ private:
     Json::Value _config;
 
     /**
+     * The buffer from whence we get the values read from input.
+     */
+    std::string _buffer;
+
+    /**
+     * The string stream used to extract words separated by whitespace.
+     */
+    std::istringstream _stream;
+
+    std::vector<std::string> _words;
+
+    /**
      * _postfixQueue is the buffer used to story numerical values as they come
      * in and serves as temporary storage for products which emerge from
      * operations as they show up in the buffer.
      */
-    std::queue<std::string> _postfixQueue;
+    std::queue<std::uint32_t> _postfixQueue;
 
 public:
 
@@ -47,7 +61,7 @@ public:
      * PostfixConsumer. This configuration may include various parameters and
      * options that influence the behavior of the postfix evaluation process.
      */
-    PostfixConsumer(const Json::Value &config);
+    PostfixConsumer(const std::string& buffer_, Json::Value config_);
 
     /**
      * @brief Constructs a new PostfixConsumer object by copying the given configuration string.
@@ -59,7 +73,7 @@ public:
      * The specific format and contents of the configuration string will depend on
      * the requirements of the application and how it is intended to be used.
      */
-    PostfixConsumer(const std::string& configString_);
+    PostfixConsumer(const std::string& buffer_, const std::string& configString_);
 
     /**
      * @brief Destroys the PostfixConsumer object and performs any necessary cleanup.

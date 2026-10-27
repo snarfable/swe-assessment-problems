@@ -76,10 +76,7 @@ int main(int argc, char **argv)
     spdlog::info("Starting postfix evaluation");
 
     // Create the primary PostfixConsumer object with a default configuration 
-    postfix::UInt32Consumer intConsumer("int_parser", "23");
-    intConsumer.consume();
-    std::cout << postfix::detail << intConsumer << std::endl;
-    postfix::PostfixConsumer consumer(std::string("{}"));
+    postfix::PostfixConsumer consumer(std::string{"01 * 03"}, std::string("{}"));
 
     return 0;
 }

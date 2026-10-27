@@ -63,7 +63,7 @@ std::ostream& operator<<(std::ostream& os, const postfix::ItemConsumer<T>& consu
     }
     else if (fmt == postfix::ItemConsumerFormat::Detail)
     {
-        os << "ItemConsumer Name: " << consumer.getConsumerName() << ", Buffer: " << consumer.getBuffer() << ", Item: " << consumer.getItem();
+        os << "ItemConsumer Name: " << consumer.getName() << ", Buffer: " << consumer.getBuffer() << ", Item: " << consumer.getItem();
     }
     else
     {
@@ -142,7 +142,7 @@ public:
      * set during the construction of the ItemConsumer object and remains
      * constant throughout its lifetime.
      */
-    const std::string& getConsumerName() const
+    const std::string& getName() const
     {
         return _consumerName;
     }

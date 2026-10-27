@@ -34,7 +34,7 @@ TEST(ItemConsumerTests, ExposesConstructorStateAndRunsDerivedMethods)
 {
     TestItemConsumer consumer("test-consumer", "buffer");
 
-    EXPECT_EQ(consumer.getConsumerName(), "test-consumer");
+    EXPECT_EQ(consumer.getName(), "test-consumer");
     EXPECT_EQ(consumer.getBuffer(), "buffer");
     EXPECT_TRUE(consumer.validate());
 

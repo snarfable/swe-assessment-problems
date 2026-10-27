@@ -13,6 +13,9 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <iterator>
+#include <vector>
 #include <queue>
 
 /**
@@ -26,22 +29,35 @@
  * corresponding source file (PostfixConsumer.cpp).
  */
 #include "PostfixConsumer.hpp"
+#include "UInt32Consumer.hpp"
+#include "OperatorConsumer.hpp"
 
 namespace postfix
 {
-    PostfixConsumer::PostfixConsumer(const Json::Value &config) : _config(config)
+
+    PostfixConsumer::PostfixConsumer(const std::string& buffer_, Json::Value config_)
+        : _config{config_},
+          _buffer{buffer_},
+          _stream{_buffer},
+          _words{std::istream_iterator<std::string>{_stream},
+                 std::istream_iterator<std::string>{}}
     {
-        spdlog::info("PostfixConsumer initialized with configuration: {}", _config.toStyledString());
+        spdlog::debug("PostfixConsumer initialized with configuration: {}", _config.toStyledString());
     }
 
-    PostfixConsumer::PostfixConsumer(const std::string& configString_) : _config{configString_}
+    PostfixConsumer::PostfixConsumer(const std::string& buffer_, const std::string& configString_)
+        : _config{configString_},
+          _buffer{buffer_},
+          _stream{_buffer},
+          _words{std::istream_iterator<std::string>{_stream},
+                 std::istream_iterator<std::string>{}}
     {
-        spdlog::info("PostfixConsumer copy constructed");
+        spdlog::debug("PostfixConsumer copy constructed");
     }
 
     PostfixConsumer::~PostfixConsumer()
     {
-        spdlog::info("PostfixConsumer destroyed");
+        spdlog::debug("PostfixConsumer destroyed");
     }
 
 } // namespace postfix

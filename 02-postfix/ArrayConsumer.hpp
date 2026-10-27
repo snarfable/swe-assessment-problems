@@ -25,16 +25,11 @@ class ArrayConsumer
 private:
 
     std::string _buffer;
-
-    (... ; ItemConsumer<T> _consumers);
+    const std::string& _nextToken();
 
 public:
 
-    ArrayConsumer(const std::string& buffer_)
-    {
-
-    }
-    
+    ArrayConsumer(const std::string& buffer_);
     ~ArrayConsumer() = default;
 
 };

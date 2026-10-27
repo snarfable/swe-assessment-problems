@@ -54,6 +54,7 @@ OperatorConsumer::OperatorConsumer(const std::string& name_)
 OperatorConsumer::OperatorConsumer(const std::string& consumerName_, const std::string& buffer_)
     : ItemConsumer<std::string>{consumerName_, buffer_}
 {
+    consume();
 }
 
 bool OperatorConsumer::validate()
@@ -63,7 +64,7 @@ bool OperatorConsumer::validate()
     if (!valid)
     {
         spdlog::error("OperatorConsumer '{}' rejected invalid operator buffer '{}'",
-                      getConsumerName(), getBuffer());
+                      getName(), getBuffer());
     }
 
     return valid;
@@ -75,7 +76,7 @@ void OperatorConsumer::consume()
     if (!parseOperator(getBuffer(), parsed))
     {
         spdlog::error("OperatorConsumer '{}' cannot consume invalid operator buffer '{}'",
-                      getConsumerName(), getBuffer());
+                      getName(), getBuffer());
         return;
     }
 
@@ -85,7 +86,7 @@ void OperatorConsumer::consume()
     _item = parsed;
 
     spdlog::debug("OperatorConsumer '{}' consumed operator '{}' (enum {})",
-                  getConsumerName(), getBuffer(), static_cast<long>(_item));
+                  getName(), getBuffer(), static_cast<long>(_item));
 }
 
 const Operator& OperatorConsumer::getItem()

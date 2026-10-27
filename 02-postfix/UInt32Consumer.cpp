@@ -30,6 +30,7 @@ UInt32Consumer::UInt32Consumer(const std::string& name_)
 UInt32Consumer::UInt32Consumer(const std::string& name_, const std::string& buffer_)
     : ItemConsumer<std::uint32_t>(name_, buffer_)
 {
+    consume();
 }
 
 bool UInt32Consumer::processBuffer()
@@ -62,7 +63,7 @@ bool UInt32Consumer::validate()
     if (!valid)
     {
         spdlog::error("UInt32Consumer '{}' rejected invalid 32-bit unsigned integer buffer '{}'",
-                      getConsumerName(), getBuffer());
+                      getName(), getBuffer());
     }
 
     return valid;
@@ -74,12 +75,12 @@ void UInt32Consumer::consume()
     if (!parseBuffer(item))
     {
         spdlog::error("UInt32Consumer '{}' cannot consume invalid 32-bit unsigned integer buffer '{}'",
-                      getConsumerName(), getBuffer());
+                      getName(), getBuffer());
         return;
     }
 
     setItem(item);
-    spdlog::debug("UInt32Consumer '{}' consumed value '{}'", getConsumerName(), item);
+    spdlog::debug("UInt32Consumer '{}' consumed value '{}'", getName(), item);
 }
 
 } // namespace postfix
