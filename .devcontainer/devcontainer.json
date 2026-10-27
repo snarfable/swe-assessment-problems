@@ -11,5 +11,8 @@
         "ms-vscode.cmake-tools"
       ]
     }
-  }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind"
+  ]
 }

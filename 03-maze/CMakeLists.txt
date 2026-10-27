@@ -1,0 +1,1 @@
+add_executable(03-maze 03-maze.cpp)

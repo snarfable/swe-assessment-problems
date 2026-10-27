@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(problem VERSION 1.0)
 
+include(CTest)
+
 # Initialize some default paths
 include(GNUInstallDirs)
 
@@ -51,3 +53,4 @@ FetchContent_MakeAvailable(googletest)
 # Add project subdirectories
 add_subdirectory(01-point)
 add_subdirectory(02-postfix)
+add_subdirectory(03-maze)

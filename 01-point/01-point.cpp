@@ -196,7 +196,8 @@ int main() {
 
     for (const auto &[key, point] : inputValues)
     {
-        std::cout << "Spherical: " << key << " -> " << point << std::endl;
+        std::cout << "Cartesian: " << cartesian << key << " -> " << point << std::endl;
+        std::cout << "Spherical: " << spherical << key << " -> " << point << std::endl;
     }
 
     return 0;

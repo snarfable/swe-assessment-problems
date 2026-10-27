@@ -1,9 +1,75 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <limits>
 #include <numeric>
 #include <jsoncpp/json/json.h>
 #include <spdlog/spdlog.h>
+
+/** @brief Index for storing output format state for ItemConsumer in std::ios_base. */
+static const int item_output_index = std::ios_base::xalloc();
+
+namespace postfix
+{
+    template<typename T>
+    class ItemConsumer;
+    enum class ItemConsumerFormat : long
+    {
+        Value = 0,
+        Detail = 1
+    };
+
+    /**
+     * @brief Stream manipulator to set ItemConsumer output mode.
+     * @param os The output stream.
+     * @return Reference to the output stream.
+     */
+    inline std::ostream &value(std::ostream &os)
+    {
+        os.iword(item_output_index) = static_cast<long>(postfix::ItemConsumerFormat::Value);
+        return os;
+    }
+
+    /**
+     * @brief Stream manipulator to set Point output format to Spherical coordinates.
+     * @param os The output stream.
+     * @return Reference to the output stream.
+     */
+    inline std::ostream &detail(std::ostream &os)
+    {
+        os.iword(item_output_index) = static_cast<long>(postfix::ItemConsumerFormat::Detail);
+        return os;
+    }
+}
+
+/**
+ * @brief Stream manipulator to set ItemConsumer output format to value or detail.
+ * @param os The output stream.
+ * @return Reference to the output stream.
+ */
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const postfix::ItemConsumer<T>& consumer)
+{
+    // Determine the current output format for ItemConsumer
+    postfix::ItemConsumerFormat fmt = static_cast<postfix::ItemConsumerFormat>(os.iword(item_output_index));
+
+    // Output the processed value alone if consumer format is set to Value,
+    // otherwise output the consumer name and buffer if format is set to Detail
+    if (fmt == postfix::ItemConsumerFormat::Value)
+    {
+        os << consumer.getItem();
+    }
+    else if (fmt == postfix::ItemConsumerFormat::Detail)
+    {
+        os << "ItemConsumer Name: " << consumer.getConsumerName() << ", Buffer: " << consumer.getBuffer() << ", Item: " << consumer.getItem();
+    }
+    else
+    {
+        spdlog::warn("Unknown ItemConsumer format, defaulting to Value output");
+    }
+
+    return os;
+}
 
 namespace postfix
 {
@@ -15,13 +81,12 @@ namespace postfix
  * destructor to ensure proper cleanup of derived classes and may include
  * additional member functions and data members as needed for the specific
  * consumption behavior.
+ * 
+ * @template T The type of item to be consumed.
+ * 
+ * This allows for flexibility in the types of items that can be processed by
+ * different implementations of the ItemConsumer class.
  */
-
-namespace
-{
-    std::ostream& operator<<(std::ostream& os, const postfix::ItemConsumer<std::uint32_t>& consumer);
-}
-
 template <typename T>
 class ItemConsumer
 {
@@ -31,6 +96,12 @@ private:
     std::string _buffer;
     T _item;
 
+protected:
+    void setItem(const T& item_)
+    {
+        _item = item_;
+    }
+
 public:
     /**
      * @brief Constructs a new ItemConsumer object with the given name.
@@ -39,7 +110,7 @@ public:
      */
     ItemConsumer(const std::string& consumerName_) : _consumerName{consumerName_}, _buffer{}
     {
-        spdlog::info("ItemConsumer '{}' initialized", _consumerName);
+        spdlog::debug("ItemConsumer '{}' initialized", _consumerName);
         spdlog::debug("ItemConsumer '{}' buffer initialized to empty string", _consumerName);
     }
 
@@ -55,7 +126,7 @@ public:
      */
     ItemConsumer(const std::string& consumerName_, const std::string& buffer_) : _consumerName{consumerName_}, _buffer{buffer_}
     {
-        spdlog::info("ItemConsumer '{}' initialized", _consumerName);
+        spdlog::debug("ItemConsumer '{}' initialized", _consumerName);
         spdlog::debug("ItemConsumer '{}' buffer initialized to '{}'", _consumerName, _buffer);
     }
 
@@ -74,45 +145,60 @@ public:
         return _consumerName;
     }
 
+    /**
+     * @brief Returns the current buffer content of the consumer.
+     * 
+     * @return The buffer content as a string.
+     * 
+     * This function provides access to the buffer content of the consumer,
+     * which can be useful for logging, debugging, and identification purposes.
+     * The buffer content is set during the construction of the ItemConsumer
+     * object and can be modified through other member functions.
+     */
     const std::string& getBuffer() const
     {
         return _buffer;
     }
 
-    const T& getItem() const
+    /**
+     * @brief Returns the current item being consumed.
+     * 
+     * @return The current item of type T.
+     * 
+     * This function provides access to the current item being consumed by the
+     * consumer. The item is of type T, which allows for flexibility in the
+     * types of items that can be processed by different implementations of the
+     * ItemConsumer class. The item can be set and modified through other member
+     * functions, and this function allows for retrieval of the current state of
+     * the item.
+     */
+    virtual const T& getItem() const
     {
         return _item;
     }
 
     /**
-     * @brief Validates the given item for consumption.
-     * 
-     * @param item_ The item to be validated.
-     * @return true if the item is valid for consumption, false otherwise.
-     * 
-     * The validate function is a pure virtual function that must be implemented
-     * by derived classes. It is responsible for checking whether the provided
-     * item meets the criteria for consumption. The specific validation logic
-     * will depend on the requirements of the derived class and the type of
-     * items being consumed.
+     * @brief Validates the consumer's internal buffer.
+     * @return true if the buffer contains a valid item, false otherwise.
      */
-    virtual bool validate(const T& item_) = 0;
+    virtual bool validate() = 0;
 
-    virtual void consume(const T& item_) = 0;
+    /**
+     * @brief Consumes the consumer's internal buffer.
+     */
+    virtual void consume() = 0;
 
     /**
      * @brief Virtual destructor for the ItemConsumer class.
+     * 
      * The virtual destructor ensures that derived classes can be properly
-     * cleaned up when an object of a derived class is deleted through a pointer to the base class. This is
-     * important for preventing resource leaks and ensuring that any resources allocated by derived classes are released correctly.
+     * cleaned up when an object of a derived class is deleted through a pointer
+     * to the base class. This is important for preventing resource leaks and
+     * ensuring that any resources allocated by derived classes are released
+     * correctly.
      */
     virtual ~ItemConsumer() = default;
 
-    friend std::ostream& operator<<(std::ostream& os, const ItemConsumer<std::uint32_t>& consumer)
-    {
-        os << "ItemConsumer Name: " << consumer._consumerName << ", Buffer: " << consumer._buffer;
-        return os;
-    }
 };
 
 }

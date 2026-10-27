@@ -29,6 +29,11 @@ private:
      */
     Json::Value _config;
 
+    /**
+     * _postfixQueue is the buffer used to story numerical values as they come
+     * in and serves as temporary storage for products which emerge from
+     * operations as they show up in the buffer.
+     */
     std::queue<std::string> _postfixQueue;
 
 public:
