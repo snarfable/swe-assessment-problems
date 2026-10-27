@@ -29,16 +29,25 @@
  * the PostfixConsumer class will be defined in the corresponding source file
  * (PostfixConsumer.cpp).
  */
+#include "ItemConsumer.hpp"
 #include "PostfixConsumer.hpp"
 #include "UInt32Consumer.hpp"
+#include "OperatorConsumer.hpp"
 
 int main(int argc, char **argv)
 {
     // Parse command line options with boost
     std::string configFile;
+    bool showHelp = false;
     boost::program_options::options_description desc("Options for parsing postfix expressions");
     desc.add_options()
-        ("help,h", "Set options for parsing postfix expressions")
+        ("help,h", boost::program_options::bool_switch(&showHelp)->notifier([](bool value) {
+                    if (value)
+                    {
+                        std::cout << "Usage: 02-postfix [options]" << std::endl;
+                    }
+                }),
+         "Show help")
         ("config,c", boost::program_options::value<std::string>(&configFile)->notifier([](const std::string& value) {
                     std::cout << "Configuration file set to: " << value << '\n';
                 }
@@ -50,6 +59,11 @@ int main(int argc, char **argv)
     {
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
+        if (showHelp)
+        {
+            std::cout << desc << '\n';
+            return 0;
+        }
         spdlog::info("Command line options parsed successfully");
     }
     catch (const boost::program_options::error &e)
@@ -66,7 +80,6 @@ int main(int argc, char **argv)
     intConsumer.consume();
     std::cout << postfix::detail << intConsumer << std::endl;
     postfix::PostfixConsumer consumer(std::string("{}"));
-
 
     return 0;
 }
